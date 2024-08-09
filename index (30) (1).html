@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUIZ QUEST</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #0F52BA;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 90px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        color: #000;
+        position: relative;
+    }
+
+    .question {
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+
+    .options {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .option {
+        flex: 0 0 45%;
+        margin: 5px;
+        padding: 10px;
+        background-color: #00ff00;
+        border: 2px solid #ffffff;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+        text-align: center;
+    }
+
+    .option:hover {
+        background-color: #00cc00;
+    }
+
+    .option.correct {
+        border-color: green;
+        background-color: green;
+        animation: blink 0.5s alternate infinite;
+    }
+
+    .option.wrong {
+        background-color: red;
+        animation: blink 0.5s alternate infinite;
+    }
+
+    @keyframes blink {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .timer {
+        font-size: 30px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .message {
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        background-color: #006400;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .button:hover {
+        background-color: #004d00;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .blinking {
+        animation: blink 1s infinite;
+    }
+
+    .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="question"></div>
+    <div class="options"></div>
+    <div class="timer">Time left: <span id="timer">45</span> seconds</div>
+    <div class="message"></div>
+    <button class="button hide" id="fiftyFiftyButton" onclick="fiftyFifty()">50/50</button>
+    <button class="button hide" id="cashOutButton" onclick="cashOut()">Cash Out</button>
+    <button class="button hide" id="nextButton" onclick="nextQuestion()">Next Question</button>
+</div>
+
+<script>
+const questions = [
+    { question: "What is the capital of France?", options: ["Paris", "London", "Berlin", "Madrid"], answer: 0 },
+    { question: "What is the currency of Japan?", options: ["Yuan", "Dollar", "Euro", "Yen"], answer: 3 },
+    { question: "What is the boiling point of water?", options: ["100°C", "90°C", "80°C", "70°C"], answer: 0 },
+    { question: "Who wrote 'To Kill a Mockingbird'?", options: ["Harper Lee", "J.K. Rowling", "Ernest Hemingway", "Mark Twain"], answer: 0 },
+    { question: "What is the chemical symbol for gold?", options: ["Au", "Ag", "Pb", "Fe"], answer: 0 },
+    { question: "Which planet is known as the Red Planet?", options: ["Earth", "Venus", "Mars", "Jupiter"], answer: 2 }
+];
+
+let currentQuestion = 0;
+let timer = 45;
+let timerInterval;
+
+function displayQuestion() {
+    const questionElement = document.querySelector('.question');
+    const optionsElement = document.querySelector('.options');
+    
+    const question = questions[currentQuestion];
+    questionElement.textContent = question.question;
+    optionsElement.innerHTML = '';
+    question.options.forEach((option, index) => {
+        const optionElement = document.createElement('div');
+        optionElement.classList.add('option');
+        optionElement.textContent = option;
+        optionElement.addEventListener('click', () => checkAnswer(index));
+        optionsElement.appendChild(optionElement);
+    });
+
+    if (currentQuestion % 2 === 1) {
+        document.querySelector('#fiftyFiftyButton').style.display = 'block';
+        document.querySelector('#cashOutButton').style.display = 'block';
+    } else {
+        document.querySelector('#fiftyFiftyButton').style.display = 'none';
+        document.querySelector('#cashOutButton').style.display = 'none';
+    }
+
+    document.querySelector('#nextButton').style.display = 'none';
+}
+
+function checkAnswer(index) {
+    clearInterval(timerInterval);
+    const options = document.querySelectorAll('.option');
+    options.forEach(option => {
+        option.classList.remove('correct', 'wrong');
+        option.removeEventListener('click', () => checkAnswer(index));
+    });
+
+    const correctIndex = questions[currentQuestion].answer;
+    if (index === correctIndex) {
+        options[index].classList.add('correct');
+        document.querySelector('.message').textContent = 'Correct!';
+    } else {
+        options[index].classList.add('wrong');
+        options[correctIndex].classList.add('correct');
+        document.querySelector('.message').textContent = 'Wrong!';
+        disableButtons();
+    }
+
+    document.querySelector('#nextButton').style.display = 'block';
+}
+
+function fiftyFifty() {
+    const options = document.querySelectorAll('.option');
+    const correctIndex = questions[currentQuestion].answer;
+    let removed = 0;
+    options.forEach((option, index) => {
+        if (index !== correctIndex && removed < 2) {
+            option.style.display = 'none';
+            removed++;
+        }
+    });
+    document.querySelector('#fiftyFiftyButton').style.display = 'none';
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        timer--;
+        document.querySelector('#timer').textContent = timer;
+        if (timer === 0) {
+            clearInterval(timerInterval);
+            checkAnswer(-1); // Time up action
+        }
+    }, 1000);
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+        displayQuestion();
+        timer = 45;
+        startTimer();
+    } else {
+        document.querySelector('#nextButton').style.display = 'none';
+    }
+}
+
+function cashOut() {
+    document.querySelector('.container').innerHTML = '<div class="message blinking">Goodbye Champ</div>';
+}
+
+function disableButtons() {
+    document.querySelector('#fiftyFiftyButton').classList.add('disabled');
+    document.querySelector('#nextButton').classList.add('disabled');
+    document.querySelector('#fiftyFiftyButton').removeEventListener('click', fiftyFifty);
+    document.querySelector('#nextButton').removeEventListener('click', nextQuestion);
+}
+
+displayQuestion();
+startTimer();
+</script>
+</body>
+</html>
