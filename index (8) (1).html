@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUIZ QUEST The Ultimate Challenge</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #0F52BA;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 90px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .question {
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+
+    .options {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .option {
+        flex: 0 0 45%;
+        margin: 5px;
+        padding: 10px;
+        background-color: #00ff00;
+        border: 2px solid #ffffff;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .option:hover {
+        background-color: #00ff00;
+    }
+
+    .option.correct {
+        border-color: green;
+    }
+
+    .option.wrong {
+        background-color: red;
+    }
+
+    .timer {
+        font-size: 30px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .message {
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        background-color: #006400;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background-color: #006400;
+    }
+</style>
+</head>
+<body>
+<div class="content">
+    <h1>QUIZ QUEST!!!</h1>
+    <p>"The Ultimate Challenge"</p>
+</div>
+
+<div class="container">
+    <div class="question"></div>
+    <div class="options"></div>
+    <div class="timer">Time left: <span id="timer">45</span> seconds</div>
+    <div class="message"></div>
+    <button class="button" id=d="fiftyFiftyButton" style="display: block; margin-top: 10px;" onclick="fiftyFifty()">50/50</button>
+</div>
+
+<!-- Link to open the same project -->
+<a href="#" class="button" onclick="window.open(window.location.href, '_blank');">Open Project</a>
+
+<script>
+let questions = [
+    { 
+        question: "What is the capital of France?", 
+        options: ["Paris", "London", "Berlin", "Madrid"], 
+        answer: 0
+    },
+    // Add more questions 
+];
+
+let currentQuestion = 0;
+let timer = 45;
+let timerInterval;
+
+function displayQuestion() {
+    const questionElement = document.querySelector('.question');
+    const optionsElement = document.querySelector('.options');
+    
+    const question = questions[currentQuestion];
+    questionElement.textContent = question.question;
+    optionsElement.innerHTML = '';
+    question.options.forEach((option, index) => {
+        const optionElement = document.createElement('div');
+        optionElement.classList.add('option');
+        optionElement.textContent = option;
+        optionElement.addEventListener('click', () => checkAnswer(index));
+        optionsElement.appendChild(optionElement);
+    });
+}
+
+function checkAnswer(index) {
+    clearInterval(timerInterval);
+    const options = document.querySelectorAll('.option');
+    options.forEach(option => option.classList.remove('correct', 'wrong'));
+    if (index === questions[currentQuestion].answer) {
+        options[index].classList.add('correct');
+        document.querySelector('.message').textContent = 'Correct!';
+    } else {
+        options[index].classList.add('wrong');
+        document.querySelector('.message').textContent = 'Wrong!';
+    }
+    document.querySelector('#nextButton').style.display = 'block';
+}
+
+function fiftyFifty() {
+    const options = document.querySelectorAll('.option');
+    const correctIndex = questions[currentQuestion].answer;
+    let removed = 0;
+    options.forEach((option, index) => {
+        if (index !== correctIndex && removed < 2) {
+            option.style.display = 'none';
+            removed++;
+        }
+    });
+    document.querySelector('#fiftyFiftyButton').style.display = 'none';
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        timer--;
+        document.querySelector('#timer').textContent = timer;
+        if (timer === 0) {
+            clearInterval(timerInterval);
+            // Handle when time runs out
+        }
+    }, 1000);
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+        displayQuestion();
+        timer = 45;
+        startTimer();
+    }
+}
+
+// Create a link for the next project
+const nextProjectLink = document.createElement('a');
+nextProjectLink.href = 'https://www.your-other-project-url.com'; // Replace with the URL of your other project
+nextProjectLink.textContent = 'Next Project';
+nextProjectLink.classList.add('button');
+nextProjectLink.target = '_blank'; // Open in a new tab
+
+// Append the link to the container
+const container = document.querySelector('.container');
+container.appendChild(nextProjectLink);
+
+displayQuestion();
+startTimer();
+</script>
+</body>
+</html>
+    
